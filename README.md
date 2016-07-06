@@ -1,4 +1,4 @@
-# redmine-appender
+# logback-redmine-appender
 
 ## References
 
