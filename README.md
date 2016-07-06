@@ -1,5 +1,23 @@
 # logback-redmine-appender
 
+## Dependency
+
+### Maven
+
+```xml
+<dependency>
+  <groupId>tw.kewang</groupId>
+  <artifactId>logback-redmine-appender</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
+### Gradle
+
+```groovy
+compile 'tw.kewang:logback-redmine-appender:0.1.0'
+```
+
 ## How to use
 
 ```xml
