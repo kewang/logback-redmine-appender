@@ -1,38 +1,23 @@
 package tw.kewang.logback.appender;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tw.kewang.App;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+public class AppTest {
+    private static final Logger LOG = LoggerFactory.getLogger(App.class);
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+    @Test
+    public void testApp() {
+        String abc = null;
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+        try {
+            if (abc.length() == 0) {
+                LOG.info("No String");
+            }
+        } catch (Exception e) {
+            LOG.error("Caught Exception: ", e);
+        }
     }
 }
