@@ -1,5 +1,7 @@
 # logback-redmine-appender
 
+[![Build Status](https://travis-ci.org/kewang/logback-redmine-appender.svg?branch=master)](https://travis-ci.org/kewang/logback-redmine-appender)
+
 ![demo](https://cloud.githubusercontent.com/assets/795839/16677110/8127513e-4504-11e6-8df0-25491dc47b4d.gif)
 
 ## Dependency
