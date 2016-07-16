@@ -3,7 +3,7 @@
 
     <groupId>tw.kewang</groupId>
     <artifactId>logback-redmine-appender</artifactId>
-    <version>0.1.3</version>
+    <version>0.1.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>logback-redmine-appender</name>
@@ -28,7 +28,7 @@
         <connection>scm:git:git@github.com:kewang/logback-redmine-appender.git</connection>
         <developerConnection>scm:git:git@github.com:kewang/logback-redmine-appender.git</developerConnection>
         <url>scm:git:git@github.com:kewang/logback-redmine-appender.git</url>
-      <tag>v0.1.3</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
