@@ -12,14 +12,14 @@
 <dependency>
   <groupId>tw.kewang</groupId>
   <artifactId>logback-redmine-appender</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-compile 'tw.kewang:logback-redmine-appender:0.1.2'
+compile 'tw.kewang:logback-redmine-appender:0.1.3'
 ```
 
 ## How to use
