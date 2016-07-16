@@ -26,9 +26,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/kewang/logback-redmine-appender.git</connection>
-        <developerConnection>scm:git:ssh://github.com:kewang/logback-redmine-appender.git</developerConnection>
-        <url>https://github.com/kewang/logback-redmine-appender/tree/master</url>
+        <connection>scm:git:git@github.com:kewang/logback-redmine-appender.git</connection>
+        <developerConnection>scm:git:git@github.com:kewang/logback-redmine-appender.git</developerConnection>
+        <url>scm:git:git@github.com:kewang/logback-redmine-appender.git</url>
     </scm>
 
     <properties>
