@@ -2,6 +2,8 @@ package tw.kewang.logback.appender;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.classic.spi.StackTraceElementProxy;
 import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
@@ -64,7 +66,43 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
             return;
         }
 
-        createIssue(event);
+//        createIssue(event);
+        showEvent(event);
+    }
+
+    private void showEvent(ILoggingEvent event) {
+        IThrowableProxy throwable = event.getThrowableProxy();
+
+        for (StackTraceElementProxy stackTrace : throwable.getStackTraceElementProxyArray()) {
+            StackTraceElement elem = stackTrace.getStackTraceElement();
+
+            System.out.println("------START");
+
+            convertClassToNavigate(elem);
+
+            System.out.println("------END");
+        }
+    }
+
+    /**
+     * Convert com.example.Test(Test.java: 15) class to com/example/Test.java#L15
+     */
+    private String convertClassToNavigate(StackTraceElement elem) {
+        String[] classNameArray = elem.getClassName().split("\\.");
+
+        classNameArray[classNameArray.length - 1] = elem.getFileName();
+
+        String result = "";
+
+        for (String className : classNameArray) {
+            result += className + "/";
+        }
+
+        result = result.substring(0, result.length() - 1);
+
+        result += "#L" + elem.getLineNumber();
+
+        return result;
     }
 
     private void createIssue(ILoggingEvent event) {
