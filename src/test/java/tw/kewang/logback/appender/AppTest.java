@@ -17,6 +17,7 @@ public class AppTest {
             }
         } catch (Exception e) {
             LOG.error("Caught Exception: ", e);
+            LOG.info("You can't see me.");
         }
     }
 }
