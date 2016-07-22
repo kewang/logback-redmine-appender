@@ -1,5 +1,6 @@
 package tw.kewang.logback.appender;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
@@ -12,19 +13,23 @@ import com.taskadapter.redmineapi.bean.Issue;
 import com.taskadapter.redmineapi.bean.IssueFactory;
 
 public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
+    private static final String DEFAULT_TITLE = "Logback Redmine Appender";
+    private static final boolean DEFAULT_ONLY_ERROR = true;
+
     private LayoutWrappingEncoder<ILoggingEvent> encoder;
     private Layout<ILoggingEvent> layout;
     private String url;
     private String apiKey;
     private int projectId = -1;
-    private String title;
+    private String title = DEFAULT_TITLE;
+    private boolean onlyError = DEFAULT_ONLY_ERROR;
     private RedmineManager redmineManager;
     private IssueManager issueManager;
 
     @Override
     public void start() {
         if (!checkProperty()) {
-            addError("No set url / apiKey / projectId / title [" + name + "].");
+            addError("No set url / apiKey / projectId [" + name + "].");
 
             return;
         }
@@ -50,12 +55,15 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     }
 
     private boolean checkProperty() {
-        return url != null && url.length() != 0 && apiKey != null && apiKey.length() != 0 && title != null &&
-                title.length() != 0 && projectId != -1;
+        return url != null && url.length() != 0 && apiKey != null && apiKey.length() != 0 && projectId != -1;
     }
 
     @Override
     public void append(ILoggingEvent event) {
+        if (event.getLevel() != Level.ERROR && onlyError == true) {
+            return;
+        }
+
         createIssue(event);
     }
 
@@ -109,5 +117,13 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
     public String getTitle() {
         return title;
+    }
+
+    public boolean isOnlyError() {
+        return onlyError;
+    }
+
+    public void setOnlyError(boolean onlyError) {
+        this.onlyError = onlyError;
     }
 }
