@@ -4,6 +4,11 @@
 
 ![demo](https://cloud.githubusercontent.com/assets/795839/16677110/8127513e-4504-11e6-8df0-25491dc47b4d.gif)
 
+## Features
+
+* Create ERROR level log @ Redmine
+* Merge the same StackTraces @ one issue
+
 ## Dependency
 
 ### Maven
