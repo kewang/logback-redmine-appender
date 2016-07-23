@@ -11,13 +11,26 @@ public class AppTest {
     public void testApp() {
         String abc = null;
 
-        try {
-            if (abc.length() == 0) {
-                LOG.info("No String");
+        for (int i = 0; i < 3; i++) {
+            try {
+                if (abc.length() == 0) {
+                    LOG.info("No String");
+                }
+            } catch (Exception e) {
+                LOG.error("Caught Exception: ", e);
+                LOG.info("You can't see me.");
             }
-        } catch (Exception e) {
-            LOG.error("Caught Exception: ", e);
-            LOG.info("You can't see me.");
+        }
+
+        for (int i = 0; i < 3; i++) {
+            try {
+                if (abc.length() == 0) {
+                    LOG.info("No String");
+                }
+            } catch (Exception e) {
+                LOG.error("Caught Exception: ", e);
+                LOG.info("You can't see me.");
+            }
         }
     }
 }
