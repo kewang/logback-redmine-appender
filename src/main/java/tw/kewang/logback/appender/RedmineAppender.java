@@ -1,6 +1,7 @@
 package tw.kewang.logback.appender;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.StackTraceElementProxy;
@@ -15,11 +16,14 @@ import com.taskadapter.redmineapi.bean.Issue;
 import com.taskadapter.redmineapi.bean.IssueFactory;
 
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private static final String DEFAULT_TITLE = "Logback Redmine Appender";
     private static final boolean DEFAULT_ONLY_ERROR = true;
+    private static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private LayoutWrappingEncoder<ILoggingEvent> encoder;
     private Layout<ILoggingEvent> layout;
@@ -32,6 +36,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private RedmineManager redmineManager;
     private IssueManager issueManager;
     private HashMap<String, Integer> maps;   // <stacktrace hash, issue_id>, like <0d612fc42ec7b7f02cb5affcbb20d531, 25>
+    private SimpleDateFormat dateFormat = DEFAULT_DATE_FORMAT;
 
     @Override
     public void start() {
@@ -50,6 +55,8 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         try {
             encoder.init(System.out);
 
+            transformDateFormat();
+
             layout = encoder.getLayout();
 
             md = MessageDigest.getInstance("MD5");
@@ -62,6 +69,17 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         maps = new HashMap<String, Integer>();
 
         super.start();
+    }
+
+    private void transformDateFormat() {
+        if (encoder instanceof PatternLayoutEncoder) {
+            String encoderPattern = ((PatternLayoutEncoder) encoder).getPattern();
+            int startPos = encoderPattern.indexOf("%d{");
+            int endPos = encoderPattern.indexOf("}", startPos);
+            String pattern = encoderPattern.substring(startPos + 3, endPos);
+
+            dateFormat = new SimpleDateFormat(pattern);
+        }
     }
 
     private boolean checkProperty() {
@@ -134,7 +152,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private void appendToOldIssue(int issueId) throws RedmineException {
         Issue issue = issueManager.getIssueById(issueId);
 
-        issue.setNotes("TIME: " + System.currentTimeMillis());
+        issue.setNotes(dateFormat.format(new Date()) + " again");
 
         issueManager.update(issue);
     }
