@@ -188,11 +188,15 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private void createNewIssue(ILoggingEvent event, String hash) throws RedmineException {
         Issue issue = IssueFactory.create(projectId, title + " - " + dateFormat.format(new Date(event.getTimeStamp())));
 
-        issue.setDescription(layout.doLayout(event));
+        issue.setDescription(transformDescription(event));
 
         issue = issueManager.createIssue(issue);
 
         maps.put(hash, issue.getId());
+    }
+
+    private String transformDescription(ILoggingEvent event) {
+        return "```java\n" + layout.doLayout(event) + "```";
     }
 
     private void appendToOldIssue(int issueId, long timestamp) throws RedmineException {
