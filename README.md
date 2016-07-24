@@ -31,10 +31,11 @@ compile 'tw.kewang:logback-redmine-appender:0.2.2'
 
 ```xml
 <appender name="REDMINE" class="tw.kewang.logback.appender.RedmineAppender">
-  <url>http://example.com</url> <!-- Your Redmine URL -->
-  <apiKey>abcdef1234567890</apiKey> <!-- Your Redmine API key-->
-  <projectId>5566</projectId> <!-- Your Redmine Project ID -->
-  <title>Logback Redmine Appender</title> <!-- Your Redmine issue title -->
+  <url>http://example.com</url> <!-- Required, Your Redmine URL -->
+  <apiKey>abcdef1234567890</apiKey> <!-- Required, Your Redmine API key-->
+  <projectId>5566</projectId> <!-- Required, Your Redmine Project ID -->
+  <title>Logback Redmine Appender</title> <!-- Optional, Your Redmine issue title -->
+  <onlyError>true</onlyError> <!-- Optional, Only show ERROR level log, default value is true -->
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
     <pattern>${PATTERN}</pattern>
     <charset>${CHARSET}</charset>
