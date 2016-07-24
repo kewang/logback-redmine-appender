@@ -76,6 +76,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
             String encoderPattern = ((PatternLayoutEncoder) encoder).getPattern();
             int startPos = encoderPattern.indexOf("%d{");
 
+            // not found date pattern
             if (startPos == -1) {
                 return;
             }
@@ -83,6 +84,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
             int endPos = encoderPattern.indexOf("}", startPos);
             String pattern = encoderPattern.substring(startPos + 3, endPos);
 
+            // date pattern is empty
             if (pattern.trim().length() == 0) {
                 return;
             }
