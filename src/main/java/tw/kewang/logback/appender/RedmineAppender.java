@@ -75,8 +75,17 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         if (encoder instanceof PatternLayoutEncoder) {
             String encoderPattern = ((PatternLayoutEncoder) encoder).getPattern();
             int startPos = encoderPattern.indexOf("%d{");
+
+            if (startPos == -1) {
+                return;
+            }
+
             int endPos = encoderPattern.indexOf("}", startPos);
             String pattern = encoderPattern.substring(startPos + 3, endPos);
+
+            if (pattern.trim().length() == 0) {
+                return;
+            }
 
             dateFormat = new SimpleDateFormat(pattern);
         }
@@ -107,7 +116,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         if (issueId == null) {
             createNewIssue(event, hash);
         } else {
-            appendToOldIssue(issueId);
+            appendToOldIssue(issueId, event.getTimeStamp());
         }
     }
 
@@ -140,7 +149,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     }
 
     private void createNewIssue(ILoggingEvent event, String hash) throws RedmineException {
-        Issue issue = IssueFactory.create(projectId, title + " - " + event.getTimeStamp());
+        Issue issue = IssueFactory.create(projectId, title + " - " + dateFormat.format(new Date(event.getTimeStamp())));
 
         issue.setDescription(layout.doLayout(event));
 
@@ -149,10 +158,10 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         maps.put(hash, issue.getId());
     }
 
-    private void appendToOldIssue(int issueId) throws RedmineException {
+    private void appendToOldIssue(int issueId, long timestamp) throws RedmineException {
         Issue issue = issueManager.getIssueById(issueId);
 
-        issue.setNotes(dateFormat.format(new Date()) + " again");
+        issue.setNotes(dateFormat.format(new Date(timestamp)) + " happened again");
 
         issueManager.update(issue);
     }
