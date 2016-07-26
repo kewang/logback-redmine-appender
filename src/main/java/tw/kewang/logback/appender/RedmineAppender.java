@@ -106,25 +106,27 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     }
 
     private void transformDateFormat() {
-        if (encoder instanceof PatternLayoutEncoder) {
-            String encoderPattern = ((PatternLayoutEncoder) encoder).getPattern();
-            int startPos = encoderPattern.indexOf("%d{");
-
-            // not found date pattern
-            if (startPos == -1) {
-                return;
-            }
-
-            int endPos = encoderPattern.indexOf("}", startPos);
-            String pattern = encoderPattern.substring(startPos + 3, endPos);
-
-            // date pattern is empty
-            if (pattern.trim().length() == 0) {
-                return;
-            }
-
-            dateFormat = new SimpleDateFormat(pattern);
+        if (!(encoder instanceof PatternLayoutEncoder)) {
+            return;
         }
+
+        String encoderPattern = ((PatternLayoutEncoder) encoder).getPattern();
+        int startPos = encoderPattern.indexOf("%d{");
+
+        // not found date pattern
+        if (startPos == -1) {
+            return;
+        }
+
+        int endPos = encoderPattern.indexOf("}", startPos);
+        String pattern = encoderPattern.substring(startPos + 3, endPos);
+
+        // date pattern is empty
+        if (pattern.trim().length() == 0) {
+            return;
+        }
+
+        dateFormat = new SimpleDateFormat(pattern);
     }
 
     @Override
