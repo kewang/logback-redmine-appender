@@ -184,19 +184,30 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
         classNameArray[classNameArray.length - 1] = elem.getFileName();
 
-        String result = "* <a href='#'>";
+        int lineNumber = elem.getLineNumber();
+        String result = "* ";
 
+        if (lineNumber > 0) {
+            result += "<a href='#'>";
+
+            result = convertClassToNavigate(classNameArray, result);
+
+            result += "#L" + lineNumber + "</a>";
+        } else {
+            result = convertClassToNavigate(classNameArray, result);
+        }
+
+        return result;
+    }
+
+    private String convertClassToNavigate(String[] classNameArray, String result) {
         for (String className : classNameArray) {
             result += className + "/";
         }
 
-        result = result.substring(0, result.length() - 1);
-
-        result += "#L" + elem.getLineNumber() + "</a>";
-
-        return result;
+        return result.substring(0, result.length() - 1);
     }
-    
+
     private String transformDescription(ILoggingEvent event) {
         return "## stacktrace\n```java\n" + layout.doLayout(event) + "```";
     }
