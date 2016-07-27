@@ -108,43 +108,6 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         } catch (RedmineException e) {
             addError("Exception", e);
         }
-
-        showEvent(event);
-    }
-
-    private void showEvent(ILoggingEvent event) {
-        IThrowableProxy throwable = event.getThrowableProxy();
-
-        for (StackTraceElementProxy stackTrace : throwable.getStackTraceElementProxyArray()) {
-            StackTraceElement elem = stackTrace.getStackTraceElement();
-
-            System.out.println("------START");
-
-            convertClassToNavigate(elem);
-
-            System.out.println("------END");
-        }
-    }
-
-    /**
-     * Convert com.example.Test(Test.java: 15) class to com/example/Test.java#L15
-     */
-    private String convertClassToNavigate(StackTraceElement elem) {
-        String[] classNameArray = elem.getClassName().split("\\.");
-
-        classNameArray[classNameArray.length - 1] = elem.getFileName();
-
-        String result = "";
-
-        for (String className : classNameArray) {
-            result += className + "/";
-        }
-
-        result = result.substring(0, result.length() - 1);
-
-        result += "#L" + elem.getLineNumber();
-
-        return result;
     }
 
     private void createIssue(ILoggingEvent event) throws RedmineException {
@@ -190,15 +153,52 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private void createNewIssue(ILoggingEvent event, String hash) throws RedmineException {
         Issue issue = IssueFactory.create(projectId, title + " - " + dateFormat.format(new Date(event.getTimeStamp())));
 
-        issue.setDescription(transformDescription(event));
+        issue.setDescription(showEvent(event) + transformDescription(event));
 
         issue = issueManager.createIssue(issue);
 
         maps.put(hash, issue.getId());
     }
 
+    private String showEvent(ILoggingEvent event) {
+        IThrowableProxy throwable = event.getThrowableProxy();
+
+        StringBuffer sb = new StringBuffer("## link\n");
+
+        for (StackTraceElementProxy stackTrace : throwable.getStackTraceElementProxyArray()) {
+            StackTraceElement elem = stackTrace.getStackTraceElement();
+
+            sb.append(convertClassToNavigate(elem)).append("\n");
+        }
+
+        sb.append("\n");
+
+        return sb.toString();
+    }
+
+    /**
+     * Convert com.example.Test(Test.java: 15) class to com/example/Test.java#L15
+     */
+    private String convertClassToNavigate(StackTraceElement elem) {
+        String[] classNameArray = elem.getClassName().split("\\.");
+
+        classNameArray[classNameArray.length - 1] = elem.getFileName();
+
+        String result = "* <a href='#'>";
+
+        for (String className : classNameArray) {
+            result += className + "/";
+        }
+
+        result = result.substring(0, result.length() - 1);
+
+        result += "#L" + elem.getLineNumber() + "</a>";
+
+        return result;
+    }
+    
     private String transformDescription(ILoggingEvent event) {
-        return "```java\n" + layout.doLayout(event) + "```";
+        return "## stacktrace\n```java\n" + layout.doLayout(event) + "```";
     }
 
     private void appendToOldIssue(int issueId, long timestamp) throws RedmineException {
