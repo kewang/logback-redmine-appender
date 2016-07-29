@@ -36,7 +36,8 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private String gitRepo;
     private String gitCommit;
     private String gitParentDir;
-    private boolean scmSupport = false;
+    private boolean gitSupport = false;
+    private String gitBaseUrl;
     private MessageDigest md;
     private RedmineManager redmineManager;
     private IssueManager issueManager;
@@ -51,7 +52,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
             return;
         }
 
-        checkScmIsSupported();
+        checkGitIsSupported();
 
         if (encoder == null) {
             addError("No encoder set for the appender named [" + name + "].");
@@ -78,9 +79,20 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         super.start();
     }
 
-    private void checkScmIsSupported() {
-        scmSupport = ((gitVendor != null && gitVendor.length() != 0) && (gitRepo != null && gitRepo.length() != 0)
+    private void checkGitIsSupported() {
+        gitSupport = ((gitVendor != null && gitVendor.length() != 0) && (gitRepo != null && gitRepo.length() != 0)
                 && (gitCommit != null && gitCommit.length() != 0) && (gitParentDir != null && gitParentDir.length() != 0));
+
+        // https://{vendor}/{repo}/blob/{commit}/{parentDir}/
+        if (gitSupport) {
+            if (gitVendor.equalsIgnoreCase("github")) {
+                gitBaseUrl = "https://github.com/" + gitRepo + "/blob/" + gitCommit + "/" + gitParentDir + "/";
+            } else if (gitVendor.equalsIgnoreCase("gitlab")) {
+
+            } else if (gitVendor.equalsIgnoreCase("bitbucket")) {
+
+            }
+        }
     }
 
     private void transformDateFormat() {
@@ -165,7 +177,11 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private void createNewIssue(ILoggingEvent event, String hash) throws RedmineException {
         Issue issue = IssueFactory.create(projectId, title + " - " + dateFormat.format(new Date(event.getTimeStamp())));
 
-        issue.setDescription(showEvent(event) + transformDescription(event));
+        if (gitSupport) {
+            issue.setDescription(showEvent(event) + transformDescription(event));
+        } else {
+            issue.setDescription(transformDescription(event));
+        }
 
         issue = issueManager.createIssue(issue);
 
@@ -206,27 +222,29 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         classNameArray[classNameArray.length - 1] = elem.getFileName();
 
         int lineNumber = elem.getLineNumber();
-        String result = "* ";
+        String result = "";
 
         if (lineNumber > 0) {
-            result += "<a href='#'>";
+            result += "* <a href='" + gitBaseUrl;
 
-            result = convertClassToNavigate(classNameArray, result);
+            String classNavigationString = convertClassToNavigate(classNameArray);
 
-            result += "#L" + lineNumber + "</a>";
+            result += classNavigationString + "#L" + lineNumber + "'>" + classNavigationString + "</a>";
         } else {
-            result = convertClassToNavigate(classNameArray, result);
+            result = "* " + convertClassToNavigate(classNameArray) + " (unknown source)";
         }
 
         return result;
     }
 
-    private String convertClassToNavigate(String[] classNameArray, String result) {
+    private String convertClassToNavigate(String[] classNameArray) {
+        String s = "";
+
         for (String className : classNameArray) {
-            result += className + "/";
+            s += className + "/";
         }
 
-        return result.substring(0, result.length() - 1);
+        return s.substring(0, s.length() - 1);
     }
 
     private String transformDescription(ILoggingEvent event) {
@@ -321,11 +339,11 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         this.gitParentDir = gitParentDir;
     }
 
-    public boolean hasScmSupport() {
-        return scmSupport;
+    public boolean hasGitSupport() {
+        return gitSupport;
     }
 
-    public void setScmSupport(boolean scmSupport) {
-        this.scmSupport = scmSupport;
+    public void setGitSupport(boolean gitSupport) {
+        this.gitSupport = gitSupport;
     }
 }
