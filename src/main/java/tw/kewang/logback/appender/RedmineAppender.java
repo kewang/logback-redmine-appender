@@ -32,6 +32,11 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private int projectId = -1;
     private String title = DEFAULT_TITLE;
     private boolean onlyError = DEFAULT_ONLY_ERROR;
+    private String gitVendor;
+    private String gitRepo;
+    private String gitCommit;
+    private String gitParentDir;
+    private boolean scmSupport = false;
     private MessageDigest md;
     private RedmineManager redmineManager;
     private IssueManager issueManager;
@@ -45,6 +50,8 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
             return;
         }
+
+        checkScmIsSupported();
 
         if (encoder == null) {
             addError("No encoder set for the appender named [" + name + "].");
@@ -69,6 +76,11 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         maps = new HashMap<String, Integer>();
 
         super.start();
+    }
+
+    private void checkScmIsSupported() {
+        scmSupport = ((gitVendor != null && gitVendor.length() != 0) && (gitRepo != null && gitRepo.length() != 0)
+                && (gitCommit != null && gitCommit.length() != 0) && (gitParentDir != null && gitParentDir.length() != 0));
     }
 
     private void transformDateFormat() {
@@ -177,7 +189,16 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     }
 
     /**
-     * Convert com.example.Test(Test.java: 15) class to com/example/Test.java#L15
+     * Convert com.example.Test(Test.java: 15) class to tw/kewang/logback/appender/AppTest.java#L42
+     * <p>
+     * vendor: github
+     * repo: kewang/logback-redmine-appender
+     * commit: fa729ff
+     * parentDir: src/main/java
+     * <p>
+     * origin: https://github.com/kewang/logback-redmine-appender/blob/fa729ff/src/main/java/tw/kewang/logback/appender/RedmineAppender.java#L7
+     * <p>
+     * template: https://{vendor}/{repo}/blob/{commit}/{parentDir}/{stacktraceElement}
      */
     private String convertClassToNavigate(StackTraceElement elem) {
         String[] classNameArray = elem.getClassName().split("\\.");
@@ -266,5 +287,45 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
     public void setOnlyError(boolean onlyError) {
         this.onlyError = onlyError;
+    }
+
+    public String getGitVendor() {
+        return gitVendor;
+    }
+
+    public void setGitVendor(String gitVendor) {
+        this.gitVendor = gitVendor;
+    }
+
+    public String getGitRepo() {
+        return gitRepo;
+    }
+
+    public void setGitRepo(String gitRepo) {
+        this.gitRepo = gitRepo;
+    }
+
+    public String getGitCommit() {
+        return gitCommit;
+    }
+
+    public void setGitCommit(String gitCommit) {
+        this.gitCommit = gitCommit;
+    }
+
+    public String getGitParentDir() {
+        return gitParentDir;
+    }
+
+    public void setGitParentDir(String gitParentDir) {
+        this.gitParentDir = gitParentDir;
+    }
+
+    public boolean hasScmSupport() {
+        return scmSupport;
+    }
+
+    public void setScmSupport(boolean scmSupport) {
+        this.scmSupport = scmSupport;
     }
 }
