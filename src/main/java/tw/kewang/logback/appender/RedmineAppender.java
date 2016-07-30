@@ -24,6 +24,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private static final String DEFAULT_TITLE = "Logback Redmine Appender";
     private static final boolean DEFAULT_ONLY_ERROR = true;
     private static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static String GIT_BASE_URL_FORMAT;
 
     private LayoutWrappingEncoder<ILoggingEvent> encoder;
     private Layout<ILoggingEvent> layout;
@@ -37,7 +38,6 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private String gitCommit;
     private String gitParentDir;
     private boolean gitSupport = false;
-    private String gitBaseUrl;
     private MessageDigest md;
     private RedmineManager redmineManager;
     private IssueManager issueManager;
@@ -52,8 +52,6 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
             return;
         }
 
-        checkGitIsSupported();
-
         if (encoder == null) {
             addError("No encoder set for the appender named [" + name + "].");
 
@@ -62,6 +60,8 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
         try {
             encoder.init(System.out);
+
+            checkGitIsSupported();
 
             transformDateFormat();
 
@@ -79,14 +79,19 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         super.start();
     }
 
+    private boolean checkProperty() {
+        return url != null && url.length() != 0 && apiKey != null && apiKey.length() != 0 && projectId != -1;
+    }
+
     private void checkGitIsSupported() {
         gitSupport = ((gitVendor != null && gitVendor.length() != 0) && (gitRepo != null && gitRepo.length() != 0)
                 && (gitCommit != null && gitCommit.length() != 0) && (gitParentDir != null && gitParentDir.length() != 0));
 
-        // https://{vendor}/{repo}/blob/{commit}/{parentDir}/
         if (gitSupport) {
             if (gitVendor.equalsIgnoreCase("github")) {
-                gitBaseUrl = "https://github.com/" + gitRepo + "/blob/" + gitCommit + "/" + gitParentDir + "/";
+                // https://github.com/{repo}/blob/{commit}/{parentDir}/%1$s#L%2$d
+
+                GIT_BASE_URL_FORMAT = "* <a href='https://github.com/" + gitRepo + "/blob/" + gitCommit + "/" + gitParentDir + "/%1$s#L%2$d'>%1$s#L%2$d</a>";
             } else if (gitVendor.equalsIgnoreCase("gitlab")) {
 
             } else if (gitVendor.equalsIgnoreCase("bitbucket")) {
@@ -115,10 +120,6 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
             dateFormat = new SimpleDateFormat(pattern);
         }
-    }
-
-    private boolean checkProperty() {
-        return url != null && url.length() != 0 && apiKey != null && apiKey.length() != 0 && projectId != -1;
     }
 
     @Override
@@ -177,10 +178,14 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private void createNewIssue(ILoggingEvent event, String hash) throws RedmineException {
         Issue issue = IssueFactory.create(projectId, title + " - " + dateFormat.format(new Date(event.getTimeStamp())));
 
+        String description = transformDescription(event);
+
         if (gitSupport) {
-            issue.setDescription(showEvent(event) + transformDescription(event));
+            String gitNavigation = showGitNavigation(event);
+
+            issue.setDescription(gitNavigation + description);
         } else {
-            issue.setDescription(transformDescription(event));
+            issue.setDescription(description);
         }
 
         issue = issueManager.createIssue(issue);
@@ -188,7 +193,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         maps.put(hash, issue.getId());
     }
 
-    private String showEvent(ILoggingEvent event) {
+    private String showGitNavigation(ILoggingEvent event) {
         IThrowableProxy throwable = event.getThrowableProxy();
 
         StringBuffer sb = new StringBuffer("## link\n");
@@ -206,15 +211,6 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
     /**
      * Convert com.example.Test(Test.java: 15) class to tw/kewang/logback/appender/AppTest.java#L42
-     * <p>
-     * vendor: github
-     * repo: kewang/logback-redmine-appender
-     * commit: fa729ff
-     * parentDir: src/main/java
-     * <p>
-     * origin: https://github.com/kewang/logback-redmine-appender/blob/fa729ff/src/main/java/tw/kewang/logback/appender/RedmineAppender.java#L7
-     * <p>
-     * template: https://{vendor}/{repo}/blob/{commit}/{parentDir}/{stacktraceElement}
      */
     private String convertClassToNavigate(StackTraceElement elem) {
         String[] classNameArray = elem.getClassName().split("\\.");
@@ -222,19 +218,14 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         classNameArray[classNameArray.length - 1] = elem.getFileName();
 
         int lineNumber = elem.getLineNumber();
-        String result = "";
+
+        String classNavigationString = convertClassToNavigate(classNameArray);
 
         if (lineNumber > 0) {
-            result += "* <a href='" + gitBaseUrl;
-
-            String classNavigationString = convertClassToNavigate(classNameArray);
-
-            result += classNavigationString + "#L" + lineNumber + "'>" + classNavigationString + "</a>";
+            return String.format(GIT_BASE_URL_FORMAT, classNavigationString, lineNumber);
         } else {
-            result = "* " + convertClassToNavigate(classNameArray) + " (unknown source)";
+            return "* " + classNavigationString + " (unknown source)";
         }
-
-        return result;
     }
 
     private String convertClassToNavigate(String[] classNameArray) {
