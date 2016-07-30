@@ -33,4 +33,18 @@ public class AppTest {
             }
         }
     }
+
+    @Test
+    public void testLinkStackTrace() {
+        String abc = null;
+
+        try {
+            if (abc.length() == 0) {
+                LOG.info("No String");
+            }
+        } catch (Exception e) {
+            LOG.error("Caught Exception: ", e);
+            LOG.info("You can't see me.");
+        }
+    }
 }
