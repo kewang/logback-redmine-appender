@@ -26,8 +26,7 @@
         <projectId>5566</projectId> <!-- Required, Your Redmine Project ID -->
         <title>Logback Redmine Appender</title> <!-- Optional, Your Redmine issue title -->
         <onlyError>true</onlyError> <!-- Optional, Only show ERROR level log, default value is true -->
-        <gitVendor>github</gitVendor>
-        <gitRepo>kewang/logback-redmine-appender</gitRepo>
+        <gitRepoUrl>https://bitbucket.org/kewang/logback-redmine-appender</gitRepoUrl> <!-- Optional, Your git vendor URL, https://github.com / https://gitlab.com / https://gitlab.example.com / https://bitbucket.org -->
         <gitCommit>fa729ff</gitCommit>
         <gitParentDir>src/main/java</gitParentDir>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">

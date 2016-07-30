@@ -90,15 +90,17 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
             gitRepoUrl = gitRepoUrl.toLowerCase();
 
             if (gitRepoUrl.indexOf("github") != -1) {
-                // https://{repoUrl}/blob/{commit}/{parentDir}/%1$s#L%2$d
+                // https://{repoUrl}/blob/{commit}/{parentDir}/%1$s#L%3$d
 
                 GIT_BASE_URL_FORMAT = "* <a href='" + gitRepoUrl + "/blob/" + gitCommit + "/" + gitParentDir + "/%1$s#L%3$d'>%1$s#L%3$d</a>";
             } else if (gitRepoUrl.indexOf("bitbucket") != -1) {
                 // https://{repoUrl}/src/{commit}/{parentDir}/%1$s?fileviewer=file-view-default#%2$s-%3$d"
 
                 GIT_BASE_URL_FORMAT = "* <a href='" + gitRepoUrl + "/src/" + gitCommit + "/" + gitParentDir + "/%1$s?fileviewer=file-view-default#%2$s-%3$d'>%1$s#L%3$d</a>";
-            } else if (gitRepoUrl.equalsIgnoreCase("gitlab")) {
+            } else {
+                // otherwise default is gitlab, https://{repoUrl}/blob/{commit}/{parentDir}/%1$s#L%3$d
 
+                GIT_BASE_URL_FORMAT = "* <a href='" + gitRepoUrl + "/blob/" + gitCommit + "/" + gitParentDir + "/%1$s#L%3$d'>%1$s#L%3$d</a>";
             }
         }
     }
