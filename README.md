@@ -8,6 +8,7 @@
 
 * Create ERROR level log @ Redmine
 * Merge the same StackTraces @ one issue
+* Link StackTraces with git repo (support GitHub, GitLab, BitBucket)
 
 ## Dependency
 
@@ -17,14 +18,14 @@
 <dependency>
   <groupId>tw.kewang</groupId>
   <artifactId>logback-redmine-appender</artifactId>
-  <version>0.2.2</version>
+  <version>0.3.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-compile 'tw.kewang:logback-redmine-appender:0.2.2'
+compile 'tw.kewang:logback-redmine-appender:0.3.0'
 ```
 
 ## How to use
