@@ -33,8 +33,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private int projectId = -1;
     private String title = DEFAULT_TITLE;
     private boolean onlyError = DEFAULT_ONLY_ERROR;
-    private String gitVendor;
-    private String gitRepo;
+    private String gitRepoUrl;
     private String gitCommit;
     private String gitParentDir;
     private boolean gitSupport = false;
@@ -84,17 +83,21 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     }
 
     private void checkGitIsSupported() {
-        gitSupport = ((gitVendor != null && gitVendor.length() != 0) && (gitRepo != null && gitRepo.length() != 0)
-                && (gitCommit != null && gitCommit.length() != 0) && (gitParentDir != null && gitParentDir.length() != 0));
+        gitSupport = ((gitRepoUrl != null && gitRepoUrl.length() != 0) && (gitCommit != null && gitCommit.length() != 0)
+                && (gitParentDir != null && gitParentDir.length() != 0));
 
         if (gitSupport) {
-            if (gitVendor.equalsIgnoreCase("github")) {
-                // https://github.com/{repo}/blob/{commit}/{parentDir}/%1$s#L%2$d
+            gitRepoUrl = gitRepoUrl.toLowerCase();
 
-                GIT_BASE_URL_FORMAT = "* <a href='https://github.com/" + gitRepo + "/blob/" + gitCommit + "/" + gitParentDir + "/%1$s#L%2$d'>%1$s#L%2$d</a>";
-            } else if (gitVendor.equalsIgnoreCase("gitlab")) {
+            if (gitRepoUrl.indexOf("github") != -1) {
+                // https://{repoUrl}/blob/{commit}/{parentDir}/%1$s#L%2$d
 
-            } else if (gitVendor.equalsIgnoreCase("bitbucket")) {
+                GIT_BASE_URL_FORMAT = "* <a href='" + gitRepoUrl + "/blob/" + gitCommit + "/" + gitParentDir + "/%1$s#L%3$d'>%1$s#L%3$d</a>";
+            } else if (gitRepoUrl.indexOf("bitbucket") != -1) {
+                // https://{repoUrl}/src/{commit}/{parentDir}/%1$s?fileviewer=file-view-default#%2$s-%3$d"
+
+                GIT_BASE_URL_FORMAT = "* <a href='" + gitRepoUrl + "/src/" + gitCommit + "/" + gitParentDir + "/%1$s?fileviewer=file-view-default#%2$s-%3$d'>%1$s#L%3$d</a>";
+            } else if (gitRepoUrl.equalsIgnoreCase("gitlab")) {
 
             }
         }
@@ -222,7 +225,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         String classNavigationString = convertClassToNavigate(classNameArray);
 
         if (lineNumber > 0) {
-            return String.format(GIT_BASE_URL_FORMAT, classNavigationString, lineNumber);
+            return String.format(GIT_BASE_URL_FORMAT, classNavigationString, elem.getFileName(), lineNumber);
         } else {
             return "* " + classNavigationString + " (unknown source)";
         }
@@ -298,20 +301,12 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
         this.onlyError = onlyError;
     }
 
-    public String getGitVendor() {
-        return gitVendor;
+    public String getGitRepoUrl() {
+        return gitRepoUrl;
     }
 
-    public void setGitVendor(String gitVendor) {
-        this.gitVendor = gitVendor;
-    }
-
-    public String getGitRepo() {
-        return gitRepo;
-    }
-
-    public void setGitRepo(String gitRepo) {
-        this.gitRepo = gitRepo;
+    public void setGitRepoUrl(String gitRepoUrl) {
+        this.gitRepoUrl = gitRepoUrl;
     }
 
     public String getGitCommit() {
