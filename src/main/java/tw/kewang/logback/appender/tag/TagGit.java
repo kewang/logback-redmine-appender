@@ -1,4 +1,4 @@
-package tw.kewang.logback.appender;
+package tw.kewang.logback.appender.tag;
 
 public class TagGit {
     private String repoUrl;

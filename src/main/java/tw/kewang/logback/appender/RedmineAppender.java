@@ -14,6 +14,7 @@ import com.taskadapter.redmineapi.RedmineManager;
 import com.taskadapter.redmineapi.RedmineManagerFactory;
 import com.taskadapter.redmineapi.bean.Issue;
 import com.taskadapter.redmineapi.bean.IssueFactory;
+import tw.kewang.logback.appender.tag.TagGit;
 
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -34,9 +35,6 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private String title = DEFAULT_TITLE;
     private boolean onlyError = DEFAULT_ONLY_ERROR;
     private TagGit git;
-    private String gitRepoUrl;
-    private String gitCommit;
-    private String gitParentDir;
     private boolean gitSupport = false;
     private MessageDigest md;
     private RedmineManager redmineManager;
@@ -84,29 +82,37 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     }
 
     private void checkGitIsSupported() {
-        gitSupport = ((gitRepoUrl != null && gitRepoUrl.length() != 0) && (gitCommit != null && gitCommit.length() != 0)
-                && (gitParentDir != null && gitParentDir.length() != 0));
+        if (git == null) {
+            return;
+        }
+
+        String repoUrl = git.getRepoUrl();
+        String commit = git.getCommit();
+        String parentDir = git.getParentDir();
+
+        gitSupport = ((repoUrl != null && repoUrl.length() != 0) && (commit != null && commit.length() != 0)
+                && (parentDir != null && parentDir.length() != 0));
 
         if (!gitSupport) {
             return;
         }
 
-        gitRepoUrl = gitRepoUrl.toLowerCase();
+        repoUrl = repoUrl.toLowerCase();
 
         String baseUrl;
 
-        if (gitRepoUrl.indexOf("github") != -1) {
+        if (repoUrl.indexOf("github") != -1) {
             // https://{repoUrl}/blob/{commit}/{parentDir}/%1$s#L%3$d
 
-            baseUrl = gitRepoUrl + "/blob/" + gitCommit + "/" + gitParentDir + "/%1$s#L%3$d";
-        } else if (gitRepoUrl.indexOf("bitbucket") != -1) {
+            baseUrl = repoUrl + "/blob/" + commit + "/" + parentDir + "/%1$s#L%3$d";
+        } else if (repoUrl.indexOf("bitbucket") != -1) {
             // https://{repoUrl}/src/{commit}/{parentDir}/%1$s?fileviewer=file-view-default#%2$s-%3$d"
 
-            baseUrl = gitRepoUrl + "/src/" + gitCommit + "/" + gitParentDir + "/%1$s?fileviewer=file-view-default#%2$s-%3$d";
+            baseUrl = repoUrl + "/src/" + commit + "/" + parentDir + "/%1$s?fileviewer=file-view-default#%2$s-%3$d";
         } else {
             // otherwise default is gitlab, https://{repoUrl}/blob/{commit}/{parentDir}/%1$s#L%3$d
 
-            baseUrl = gitRepoUrl + "/blob/" + gitCommit + "/" + gitParentDir + "/%1$s#L%3$d";
+            baseUrl = repoUrl + "/blob/" + commit + "/" + parentDir + "/%1$s#L%3$d";
         }
 
         GIT_BASE_URL_FORMAT = "* <a href='" + baseUrl + "'>%1$s#L%3$d</a>";
@@ -312,30 +318,6 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
     public void setOnlyError(boolean onlyError) {
         this.onlyError = onlyError;
-    }
-
-    public String getGitRepoUrl() {
-        return gitRepoUrl;
-    }
-
-    public void setGitRepoUrl(String gitRepoUrl) {
-        this.gitRepoUrl = gitRepoUrl;
-    }
-
-    public String getGitCommit() {
-        return gitCommit;
-    }
-
-    public void setGitCommit(String gitCommit) {
-        this.gitCommit = gitCommit;
-    }
-
-    public String getGitParentDir() {
-        return gitParentDir;
-    }
-
-    public void setGitParentDir(String gitParentDir) {
-        this.gitParentDir = gitParentDir;
     }
 
     public boolean hasGitSupport() {

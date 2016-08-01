@@ -26,7 +26,7 @@
         <projectId>5566</projectId> <!-- Required, Your Redmine Project ID -->
         <title>Logback Redmine Appender</title> <!-- Optional, Your Redmine issue title -->
         <onlyError>true</onlyError> <!-- Optional, Only show ERROR level log, default value is true -->
-        <git class="tw.kewang.logback.appender.TagGit">
+        <git class="tw.kewang.logback.appender.tag.TagGit">
             <repoUrl>https://bitbucket.org/kewang/logback-redmine-appender</repoUrl> <!-- Optional, Your git vendor URL, https://github.com / https://gitlab.com / https://gitlab.example.com / https://bitbucket.org -->
             <commit>fa729ff</commit> <!-- Optional, Your git commit -->
             <parentDir>src/main/java</parentDir> <!-- Optional, Your parent directory -->
