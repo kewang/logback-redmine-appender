@@ -33,6 +33,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private int projectId = -1;
     private String title = DEFAULT_TITLE;
     private boolean onlyError = DEFAULT_ONLY_ERROR;
+    private TagGit git;
     private String gitRepoUrl;
     private String gitCommit;
     private String gitParentDir;
@@ -343,5 +344,13 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
     public void setGitSupport(boolean gitSupport) {
         this.gitSupport = gitSupport;
+    }
+
+    public TagGit getGit() {
+        return git;
+    }
+
+    public void setGit(TagGit git) {
+        this.git = git;
     }
 }
