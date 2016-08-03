@@ -25,6 +25,8 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private static final String DEFAULT_TITLE = "Logback Redmine Appender";
     private static final boolean DEFAULT_ONLY_ERROR = true;
     private static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final String HEADING_STACKTRACE = "## StackTrace";
+    private static final String HEADING_LINK = "## Link";
     private static String GIT_BASE_URL_FORMAT;
 
     private LayoutWrappingEncoder<ILoggingEvent> encoder;
@@ -218,7 +220,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     private String showGitNavigation(ILoggingEvent event) {
         IThrowableProxy throwable = event.getThrowableProxy();
 
-        StringBuffer sb = new StringBuffer("## link\n");
+        StringBuffer sb = new StringBuffer(HEADING_LINK + "\n");
 
         for (StackTraceElementProxy stackTrace : throwable.getStackTraceElementProxyArray()) {
             StackTraceElement elem = stackTrace.getStackTraceElement();
@@ -261,7 +263,7 @@ public class RedmineAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     }
 
     private String transformDescription(ILoggingEvent event) {
-        return "## stacktrace\n```java\n" + layout.doLayout(event) + "```";
+        return HEADING_STACKTRACE + "\n```java\n" + layout.doLayout(event) + "```";
     }
 
     private void appendToOldIssue(int issueId, long timestamp) throws RedmineException {
