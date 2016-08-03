@@ -18,14 +18,14 @@
 <dependency>
   <groupId>tw.kewang</groupId>
   <artifactId>logback-redmine-appender</artifactId>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-compile 'tw.kewang:logback-redmine-appender:0.3.0'
+compile 'tw.kewang:logback-redmine-appender:0.4.0'
 ```
 
 ## How to use
@@ -37,9 +37,11 @@ compile 'tw.kewang:logback-redmine-appender:0.3.0'
   <projectId>5566</projectId> <!-- Required, Your Redmine Project ID -->
   <title>Logback Redmine Appender</title> <!-- Optional, Your Redmine issue title -->
   <onlyError>true</onlyError> <!-- Optional, Only show ERROR level log, default value is true -->
-  <gitRepoUrl>https://bitbucket.org/kewang/logback-redmine-appender</gitRepoUrl> <!-- Optional, Your git vendor URL, https://github.com / https://gitlab.com / https://gitlab.example.com / https://bitbucket.org -->
-  <gitCommit>fa729ff</gitCommit> <!-- Optional, Your git commit -->
-  <gitParentDir>src/main/java</gitParentDir> <!-- Optional, Your parent directory -->
+  <git class="tw.kewang.logback.appender.tag.TagGit">
+    <repoUrl>https://bitbucket.org/kewang/logback-redmine-appender</repoUrl> <!-- Optional, Your git vendor URL, https://github.com / https://gitlab.com / https://gitlab.example.com / https://bitbucket.org -->
+    <commit>fa729ff</commit> <!-- Optional, Your git commit -->
+    <parentDir>src/main/java</parentDir> <!-- Optional, Your parent directory -->
+  </git>
   <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
     <pattern>${PATTERN}</pattern>
     <charset>${CHARSET}</charset>
